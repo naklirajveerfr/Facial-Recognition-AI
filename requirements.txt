@@ -1,0 +1,8 @@
+--index-url https://download.pytorch.org/whl/cu121
+torch
+torchvision
+opencv-python
+facenet-pytorch
+transformers
+Pillow
+pyttsx3
