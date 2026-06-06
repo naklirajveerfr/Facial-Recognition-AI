@@ -1,6 +1,6 @@
 #  Facial Recognition And Sentimental Analysis
 
-A high-performance, privacy-first, local computer vision application that provides real-time facial recognition and emotion analysis. Built with a robust **Tkinter GUI wrapper**, this system is engineered for edge production environments, ensuring zero cloud dependencies, secure localized data processing, and optimized resource management on lower-tier hardware.
+A high-performance, privacy-first, local computer vision application that provides real-time facial recognition and emotion analysis, ensuring zero cloud dependencies, secure localized data processing, and optimized resource management on lower-tier hardware.
 
 ---
 
