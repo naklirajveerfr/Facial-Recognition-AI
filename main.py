@@ -10,7 +10,7 @@ from facenet_pytorch import MTCNN, InceptionResnetV1
 from transformers import ViTImageProcessor, ViTForImageClassification
 import torchvision.transforms.functional as F_ts
 
-# Suppress warnings
+
 warnings.filterwarnings("ignore")
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
@@ -21,11 +21,11 @@ class FaceAIApp:
         self.window.geometry("900x650")
         self.window.configure(bg="#1e1e2e")
 
-        # --- 1. HARDWARE & AI INITIALIZATION ---
+        
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
         
-        # Load Networks
+       
         self.mtcnn = MTCNN(image_size=160, margin=20, keep_all=False, device=self.device)
         self.resnet = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
         
@@ -33,36 +33,35 @@ class FaceAIApp:
         self.processor = ViTImageProcessor.from_pretrained(model_name)
         self.emotion_model = ViTForImageClassification.from_pretrained(model_name).eval().to(self.device)
 
-        # Sync database
+       
         self.load_database()
 
-        # --- 2. VIDEO STREAM CAPTURE ---
+     
         self.video_capture = cv2.VideoCapture(0)
         self.video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         
-        # Performance Tracking State Variables
+
         self.frame_count = 0
         self.ai_skip_rate = 5
         self.cached_results = []
         self.prev_time = time.time()
 
-        # --- 3. UI LAYOUT (TKINTER) ---
-        # Top Header Bar
+ 
         self.header = tk.Label(self.window, text=f"ENGINE: {self.gpu_name}", font=("Arial", 12, "bold"), fg="#a6e3a1", bg="#313244", pady=10)
         self.header.pack(fill=tk.X)
 
-        # Main Video Screen Canvas
+        
         self.canvas = tk.Canvas(self.window, width=800, height=500, bg="#11111b", highlightthickness=0)
         self.canvas.pack(pady=15)
 
-        # Bottom Control Panel
+        
         self.btn_quit = tk.Button(self.window, text="TERMINATE SYSTEM", command=self.on_closing, font=("Arial", 10, "bold"), fg="white", bg="#f38ba8", activebackground="#f38ba8", padx=20, pady=8, bd=0)
         self.btn_quit.pack()
 
-        # Handle user clicking the native Windows 'X' button
+      
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        # Trigger the asynchronous execution loop
+
         self.update_frame()
 
     def load_database(self):
@@ -86,7 +85,7 @@ class FaceAIApp:
         if ret:
             self.frame_count += 1
             
-            # Heavy AI Processing Interval Gate
+  
             if self.frame_count % self.ai_skip_rate == 0:
                 current_ai_results = []
                 small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
@@ -133,7 +132,7 @@ class FaceAIApp:
                         })
                 self.cached_results = current_ai_results
 
-            # Graphical Rendering Loop Overlay
+    
             for face in self.cached_results:
                 x1, y1, x2, y2 = face['box']
                 theme_color = (0, 255, 0) if "UNKNOWN" not in face['text'] else (0, 165, 255)
@@ -141,27 +140,26 @@ class FaceAIApp:
                 cv2.rectangle(frame, (x1, y1 - 30), (x2, y1), theme_color, -1)
                 cv2.putText(frame, face['text'], (x1 + 6, y1 - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2)
 
-            # Performance Metrics Engine
+ 
             current_time = time.time()
             fps = 1 / (current_time - self.prev_time) if (current_time - self.prev_time) > 0 else 0
             self.prev_time = current_time
             cv2.putText(frame, f"FPS: {int(fps)}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
-            # Core conversion layer: Convert BGR OpenCV image array to Tkinter PhotoImage
+
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             self.photo = ImageTk.PhotoImage(image=Image.fromarray(rgb_frame))
             self.canvas.create_image(0, 0, image=self.photo, anchor=tk.NW)
 
-        # Re-schedule this method to run again in 10 milliseconds
         self.window.after(10, self.update_frame)
 
     def on_closing(self):
-        # Gracefully kill hardware hooks before termination
+
         if messagebox.askokcancel("Quit", "Do you want to safely stop the production pipeline?"):
             self.video_capture.release()
             self.window.destroy()
 
-# Start application lifecycle
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = FaceAIApp(root, "Enterprise Biometric Platform v1.0")
